@@ -1,0 +1,23 @@
+{
+  "name": "safesnipe",
+  "version": "1.0.0",
+  "description": "A set of functionalities with the purpose of automate the scrape, process and rank data of BSC presales to invest on them later.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard --fix",
+    "start-dev": "nodemon server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "mongoose": "^6.1.4",
+    "multer": "^1.4.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "standard": "^16.0.4"
+  }
+}
