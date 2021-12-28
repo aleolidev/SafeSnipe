@@ -3,11 +3,16 @@ const Launch = require('../models/Launch')
 async function addLaunch(req, res) {
     try {   
         const {
+            // Token Info
             tokenName,
             tokenSymbol,
+
+            //Social Media
             website,
             telegram,
             twitter,
+            instagram,
+            facebook,
             discord,
             reddit,
             youtube,
@@ -15,11 +20,16 @@ async function addLaunch(req, res) {
         } = req.body
 
         const launch = Launch({
+            // Token Info
             tokenName,
             tokenSymbol,
+
+            // Social Media
             website,
             telegram,
             twitter,
+            instagram,
+            facebook,
             discord,
             reddit,
             youtube,

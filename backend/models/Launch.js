@@ -4,12 +4,29 @@ const { appConfig } = require('../config')
 const Schema = mongoose.Schema
 
 const LaunchSchema = Schema({
+    // Token Info
     tokenName: String,
     tokenSymbol: String,
     tokenIconUrl: String,
+
+    presaleAddress: String,
+    tokenAddress: String,
+
+    minBuy: Number,
+    maxBuy: Number,
+
+    softCap: Number,
+    hardCap: Number,
+
+    presaleStart: Date,
+    presaleEnd: Date,
+
+    // Social Media
     website: String,
     telegram: String,
     twitter: String,
+    instagram: String,
+    facebook: String,
     discord: String,
     reddit: String,
     youtube: String,
