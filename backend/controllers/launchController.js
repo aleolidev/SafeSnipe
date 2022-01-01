@@ -7,6 +7,24 @@ async function addLaunch(req, res) {
             tokenName,
             tokenSymbol,
 
+            hasKYC,
+            hasAudit,
+            auditLink,
+
+            presaleAddress,
+            presaleAddressBscScan,
+            tokenAddress,
+            tokenAddressBscScan,
+
+            minBuy,
+            maxBuy,
+
+            softCap,
+            hardCap,
+
+            presaleStart,
+            presaleEnd,
+
             //Social Media
             website,
             telegram,
@@ -16,13 +34,32 @@ async function addLaunch(req, res) {
             discord,
             reddit,
             youtube,
-            github
+            github,
+            unknownSites
         } = req.body
 
         const launch = Launch({
             // Token Info
             tokenName,
             tokenSymbol,
+
+            hasKYC,
+            hasAudit,
+            auditLink,
+
+            presaleAddress,
+            presaleAddressBscScan,
+            tokenAddress,
+            tokenAddressBscScan,
+
+            minBuy,
+            maxBuy,
+
+            softCap,
+            hardCap,
+
+            presaleStart,
+            presaleEnd,
 
             // Social Media
             website,
@@ -33,7 +70,8 @@ async function addLaunch(req, res) {
             discord,
             reddit,
             youtube,
-            github
+            github,
+            unknownSites
         })
 
         

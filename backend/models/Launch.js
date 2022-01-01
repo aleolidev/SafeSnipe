@@ -9,8 +9,14 @@ const LaunchSchema = Schema({
     tokenSymbol: String,
     tokenIconUrl: String,
 
+    hasKYC: Boolean,
+    hasAudit: Boolean,
+    auditLink: String,
+
     presaleAddress: String,
+    presaleAddressBscScan: String,
     tokenAddress: String,
+    tokenAddressBscScan: String,
 
     minBuy: Number,
     maxBuy: Number,
@@ -31,6 +37,7 @@ const LaunchSchema = Schema({
     reddit: String,
     youtube: String,
     github: String,
+    unknownSites: Array,
 }, {
     timestamps: true
 }) 
