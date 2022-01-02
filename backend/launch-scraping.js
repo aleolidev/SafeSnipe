@@ -1,4 +1,7 @@
 const puppeteer = require('puppeteer')
+var axios = require('axios')
+var qs = require('qs')
+const { appConfig, _ } = require('./config')
 
 const pinksaleLaunchpadURI = 'https://www.pinksale.finance/#/launchpads?chain=BSC'
 
@@ -17,17 +20,24 @@ async function scrapePinksale() {
 
     const launched = await getLaunchesList(page)
 
-    let total_time = 0
-    let launches_tested = 0
+    // let total_time = 0
+    // let launches_tested = 0
 
     for await (const launchURI of launched) {
-        const start =  Date.now()
-        const launchInfo = await getLaunchInfo(browser, launchURI)
-        const end = Date.now()
-        launches_tested++
-        total_time += (end - start)
-
-        console.log(`Average execution time: ${total_time / launches_tested} ms`)
+        try {
+            // const start =  Date.now()
+            
+            const launchInfo = await getLaunchInfo(browser, launchURI)
+            await postLaunchInfo(launchInfo)
+            
+            // const end = Date.now()
+            // launches_tested++
+            // total_time += (end - start)
+    
+            // console.log(`Average execution time: ${total_time / launches_tested} ms`)
+        } catch (e) {
+            console.log("Error trying to scrape " + launchURI)
+        }
     }
 
 }
@@ -101,40 +111,100 @@ async function getLaunchesList(page) {
     return hrefs
 }
 
+async function postLaunchInfo(raw_data) {
+    const data = qs.stringify(raw_data)
+
+    let config = {
+        method: 'post',
+        url: 'http://localhost:8080/v1/launch',
+        headers: { 
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data : data
+    }
+
+    axios(config).then(function (response) {
+        console.log(`'${raw_data['tokenName']}' inserted/updated successfully.`)
+        //console.log(JSON.stringify(response.data));
+    }).catch(function (error) {
+        console.log(`There was an error while inserting/updating '${raw_data['tokenName']}': ${error}`);
+    });
+
+    /*const options = {
+        hostname: appConfig.host,
+        port: appConfig.port,
+        path: appConfig.launchPath,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': data.length
+        }
+    }*/
+}
+
 async function getLaunchInfo(browser, launchURI) {
 
     let launch_info = {}
     const launch = await browser.newPage()
     await launch.goto(launchURI, {waitUntil: 'networkidle0', timeout: 120000}) // Waits until the page is completely loaded
 
-    launch_info['tokenName'] = await getLaunchValue(launch, "Token Name", "")
-    launch_info['tokenSymbol'] = await getLaunchValue(launch, "Token Symbol", "")
+    const pinksaleUrl = launchURI
+    if (isValid(pinksaleUrl)) { launch_info['pinksaleUrl'] = pinksaleUrl }
+    const tokenName = await getLaunchValue(launch, "Token Name", "")
+    if (isValid(tokenName)) { launch_info['tokenName'] = tokenName }
+    const tokenSymbol = await getLaunchValue(launch, "Token Symbol", "")
+    if (isValid(tokenSymbol)) { launch_info['tokenSymbol'] = tokenSymbol }
 
-    launch_info['tokenIconUrl'] = await getTokenIconUrl(launch)
+    const tokenIconUrl = await getTokenIconUrl(launch)
+    if (isValid(tokenIconUrl)) { launch_info['tokenIconUrl'] = await tokenIconUrl }
 
     launch_info['hasKYC'] = await getHasKYC(launch)
-    launch_info['auditLink'] = await getAuditLink(launch)
-    launch_info['hasAudit'] = launch_info['auditLink'] != null && launch_info['auditLink'] != undefined && launch_info['auditLink'] != ''
+    const auditLink = await getAuditLink(launch)
+    if (isValid(auditLink)) { launch_info['auditLink'] = auditLink }
+    launch_info['hasAudit'] = isValid(auditLink)
 
-    launch_info['presaleAddress'] = await getLaunchValue(launch, "Presale Address", "//a")
-    launch_info['presaleAddressBscScan'] = await getLaunchParam(launch, "Presale Address", "//a")
-    launch_info['tokenAddress'] = await getLaunchValue(launch, "Token Address", "//a")
-    launch_info['tokenAddressBscScan'] = await getLaunchParam(launch, "Token Address", "//a")
+    const presaleAddress = await getLaunchValue(launch, "Presale Address", "//a")
+    if (isValid(presaleAddress)) { launch_info['presaleAddress'] = presaleAddress }
+    const presaleAddressBscScan = await getLaunchParam(launch, "Presale Address", "//a")
+    if (isValid(presaleAddressBscScan)) { launch_info['presaleAddressBscScan'] = presaleAddressBscScan }
+    const tokenAddress = await getLaunchValue(launch, "Token Address", "//a")
+    if (isValid(tokenAddress)) { launch_info['tokenAddress'] = tokenAddress }
+    const tokenAddressBscScan = await getLaunchParam(launch, "Token Address", "//a")
+    if (isValid(tokenAddressBscScan)) { launch_info['tokenAddressBscScan'] = tokenAddressBscScan }
     
-    launch_info['minBuy'] = await getLaunchValue(launch, "Minimum Buy", "")
-    launch_info['maxBuy'] = await getLaunchValue(launch, "Maximum Buy", "")
+    const minBuy = await getLaunchValue(launch, "Minimum Buy", "")
+    if (isValid(minBuy)) { launch_info['minBuy'] = minBuy }
+    const maxBuy = await getLaunchValue(launch, "Maximum Buy", "")
+    if (isValid(maxBuy)) { launch_info['maxBuy'] = maxBuy }
+
+    const softCap = await getLaunchValue(launch, "Soft Cap", "")
+    if (isValid(softCap)) { launch_info['softCap'] = softCap }
+    const hardCap = await getLaunchValue(launch, "Hard Cap", "")
+    if (isValid(hardCap)) { launch_info['hardCap'] = hardCap }
     
-    launch_info['softCap'] = await getLaunchValue(launch, "Soft Cap", "")
-    launch_info['hardCap'] = await getLaunchValue(launch, "Hard Cap", "")
-    
-    launch_info['presaleStart'] = await getLaunchValue(launch, "Presale Start Time", "")
-    launch_info['presaleEnd'] = await getLaunchValue(launch, "Presale End Time", "")
+    const presaleStart = await getLaunchValue(launch, "Presale Start Time", "")
+    if (isValid(presaleStart)) { launch_info['presaleStart'] = presaleStart }
+    const presaleEnd = await getLaunchValue(launch, "Presale End Time", "")
+    if (isValid(presaleEnd)) { launch_info['presaleEnd'] = presaleEnd }
 
     // Get social media
     launch_info = Object.assign({}, launch_info, await getLaunchSocialMedia(launch))
-    console.log(launch_info)
 
+    if (launch_info['telegram'] != null && launch_info['telegram'] != undefined && launch_info['telegram'] != '') {
+        launch_info['telegramUsers'] = await getTelegramUsers(browser, launch_info['telegram'])
+    } else {
+        launch_info['telegramUsers'] = 0
+    }
+
+    if (launch_info['website'] != null && launch_info['website'] != undefined && launch_info['website'] != '') {
+        const websiteCreationDate = await getWebsiteCreationDate(browser, launch_info['website'])
+        if (isValid(websiteCreationDate)) { launch_info['websiteCreationDate'] = websiteCreationDate }
+    }
+
+    //console.log(launch_info)
     launch.close()
+
+    return launch_info
 }
 
 async function getLaunchValue(page, value_string, extra_xpath) {
@@ -152,7 +222,7 @@ async function getLaunchValue(page, value_string, extra_xpath) {
         }
         
     } catch (e){
-        console.log(`Error trying to catch the parameter '${value_string}': ${e}`)
+        //console.log(`Error trying to catch the parameter '${value_string}': ${e}`)
         return null
     }
 }
@@ -169,13 +239,13 @@ async function getLaunchParam(page, value_string, extra_xpath) {
         return param_data
         
     } catch (e){
-        console.log(`Error trying to catch the parameter '${value_string}': ${e}`)
+        //console.log(`Error trying to catch the parameter '${value_string}': ${e}`)
         return null
     }
 }
 
 async function getTokenIconUrl(page) {
-    const xpath = '//article[contains(@class, "media") and contains(@class, "pool-detail")]/img'
+    //const xpath = '//article[contains(@class, "media") and contains(@class, "pool-detail")]/img'
 
     try {
         const icon_url = await page.$eval('article.pool-detail img', img => img.getAttribute('src'));
@@ -282,10 +352,69 @@ function parseSocialMedia(launch_sites, known_sites, social_media) {
     }
 }
 
-async function getTextByXPath(page, XPath) {
-    const element = await getElementByXPath(page, XPath)
-    const msg = await page.evaluate(name => name.innerText, element)
-    return msg 
+// Telegram
+
+async function getTelegramUsers(browser, url) {
+    const xpath = '//div[contains(@class, "tgme_page_extra")]'
+    const number_regex = /^[^\d]*(\d+)/g
+
+    const telegram = await browser.newPage()
+
+    // Close alert box if it appears
+    telegram.on('dialog', async dialog => {
+        await dialog.dismiss()
+        await telegram.waitForTimeout(1500)
+    })
+    
+    await telegram.goto(url, {waitUntil: 'networkidle0'}) // Waits until the page is completely loaded
+    
+
+    try {
+        const [page_extra] = await telegram.$x(xpath)
+        const page_extra_innerText = await page_extra.getProperty('innerText')
+        let page_extra_data = await page_extra_innerText.jsonValue()
+        page_extra_data = page_extra_data.replaceAll(" ", "")
+
+        const match = number_regex.exec(page_extra_data)
+        const users_amount = parseInt(match[1])
+
+        telegram.close()
+        
+        return users_amount
+    } catch (e){
+        // Error trying to catch parameter
+        telegram.close()
+        return 0
+    } 
+}
+
+// Website
+
+async function getWebsiteCreationDate(browser, url) {
+    const xpath = '//div[contains(@class, "queryResponseBodyRow") and contains(., "Registered On")]//div[contains(@class, "queryResponseBodyValue")]'
+    const regex_URL = /https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{1,256})/g
+    
+    const matches = regex_URL.exec(url)
+    const hostname_matched = matches[1]
+
+    const whois = await browser.newPage()
+
+    await whois.goto("https://who.is/whois/" + hostname_matched, {waitUntil: 'networkidle0'}) // Waits until the page is completely loaded  
+
+    try {
+        const [date_element] = await whois.$x(xpath)
+        const date_innerText = await date_element.getProperty('innerText')
+        let date_data = await date_innerText.jsonValue()
+
+        whois.close()
+        
+        if (isValid(date_data)) { return date_data.replaceAll('-', '.') }
+        return null
+    } catch (e){
+        // Error trying to catch parameter
+        whois.close()
+        return null
+    } 
 }
 
 async function getElementByXPath(page, XPath) {
@@ -315,6 +444,10 @@ async function autoScroll(page){
             }, 5);
         });
     });
+}
+
+function isValid(value) {
+    return value != null && value != undefined && value != ''
 }
 
 module.exports = scrapePinksale

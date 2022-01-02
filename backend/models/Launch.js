@@ -1,10 +1,11 @@
 const mongoose = require('mongoose')
-const { appConfig } = require('../config')
+//const { appConfig } = require('../config')
 
 const Schema = mongoose.Schema
 
 const LaunchSchema = Schema({
     // Token Info
+    pinksaleUrl: String,
     tokenName: String,
     tokenSymbol: String,
     tokenIconUrl: String,
@@ -18,11 +19,11 @@ const LaunchSchema = Schema({
     tokenAddress: String,
     tokenAddressBscScan: String,
 
-    minBuy: Number,
-    maxBuy: Number,
+    minBuy: String,
+    maxBuy: String,
 
-    softCap: Number,
-    hardCap: Number,
+    softCap: String,
+    hardCap: String,
 
     presaleStart: Date,
     presaleEnd: Date,
@@ -38,13 +39,19 @@ const LaunchSchema = Schema({
     youtube: String,
     github: String,
     unknownSites: Array,
+
+    // Telegram
+    telegramUsers: Number,
+
+    // Website
+    websiteCreationDate: String,
 }, {
     timestamps: true
 }) 
 
-LaunchSchema.methods.setTokenIconUrl = function setTokenIconUrl (filename) {
+/*LaunchSchema.methods.setTokenIconUrl = function setTokenIconUrl (filename) {
     const { host, port } = appConfig
     this.tokenIconUrl = `${host}:${port}/public/${filename}`
-}
+}*/
 
 module.exports = mongoose.model('Launch', LaunchSchema)

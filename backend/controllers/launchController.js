@@ -1,11 +1,14 @@
 const Launch = require('../models/Launch')
 
 async function addLaunch(req, res) {
+
     try {   
         const {
             // Token Info
+            pinksaleUrl,
             tokenName,
             tokenSymbol,
+            tokenIconUrl,
 
             hasKYC,
             hasAudit,
@@ -35,55 +38,59 @@ async function addLaunch(req, res) {
             reddit,
             youtube,
             github,
-            unknownSites
+            unknownSites,
+
+            // Telegram
+            telegramUsers,
+
+            // Website
+            websiteCreationDate
         } = req.body
 
-        const launch = Launch({
-            // Token Info
-            tokenName,
-            tokenSymbol,
-
-            hasKYC,
-            hasAudit,
-            auditLink,
-
-            presaleAddress,
-            presaleAddressBscScan,
-            tokenAddress,
-            tokenAddressBscScan,
-
-            minBuy,
-            maxBuy,
-
-            softCap,
-            hardCap,
-
-            presaleStart,
-            presaleEnd,
-
-            // Social Media
-            website,
-            telegram,
-            twitter,
-            instagram,
-            facebook,
-            discord,
-            reddit,
-            youtube,
-            github,
-            unknownSites
-        })
-
-        
-        if (req.file) {
-            const { filename } = req.file
-            launch.setTokenIconUrl(filename)
+        const filter = { 
+            'tokenName': tokenName, 
+            'tokenSymbol': tokenSymbol 
         }
-
-        const launchStored = await launch.save()
+        
+        const update = { 
+            'pinksaleUrl': pinksaleUrl,
+            'tokenName': tokenName,
+            'tokenSymbol': tokenSymbol,
+            'tokenIconUrl': tokenIconUrl,
+            'hasKYC': hasKYC,
+            'hasAudit': hasAudit,
+            'auditLink': auditLink,
+            'presaleAddress': presaleAddress,
+            'presaleAddressBscScan': presaleAddressBscScan,
+            'tokenAddress': tokenAddress,
+            'tokenAddressBscScan': tokenAddressBscScan,
+            'minBuy': minBuy,
+            'maxBuy': maxBuy,
+            'softCap': softCap,
+            'hardCap': hardCap,
+            'presaleStart': presaleStart,
+            'presaleEnd': presaleEnd,
+            'website': website,
+            'telegram': telegram,
+            'twitter': twitter,
+            'instagram': instagram,
+            'facebook': facebook,
+            'discord': discord,
+            'reddit': reddit,
+            'youtube': youtube,
+            'github': github,
+            'unknownSites': unknownSites,
+            'telegramUsers': telegramUsers,
+            'websiteCreationDate': websiteCreationDate
+        }
+        
+        const launchStored = await Launch.findOneAndUpdate(filter, update, { 
+            upsert: true, new: true 
+        })
 
         res.status(201).send({ launchStored })
     } catch (e) {
+        console.log(e)
         res.status(500).send({ message: e.message })
     }
 }
