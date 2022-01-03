@@ -114,7 +114,7 @@ const ExitContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-top: 3rem;
+    margin-top: 2rem;
 `;
 
 const ExitLink = styled.div`
