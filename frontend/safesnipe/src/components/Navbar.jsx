@@ -1,11 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 import { MdSearch } from 'react-icons/md'
-import { textWhite, backgroundDarkBlue } from '../utils/index'
+import { textWhite, backgroundDarkBlue } from '../utils'
 
 function Navbar() {
     return <NavbarContainer>
-        <Text>Dashboard</Text>
+        <Text>Launch</Text>
         <InputContainer>
             <Icon>
                 <MdSearch />

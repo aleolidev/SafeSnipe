@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import SafeSnipeLogo from '../assets/SafeSnipe-Emerald.png'
 import { MdOutlineSpaceDashboard, MdOutlineAnalytics, MdOutlineAccountBalanceWallet, MdOutlineSettings, MdOutlineExitToApp } from 'react-icons/md'
 import { RiRocket2Line } from 'react-icons/ri'
-import { textWhite, primaryRed, backgroundLightBlue } from '../utils/index'
+import { textWhite, primaryRed, backgroundLightBlue } from '../utils'
 
 function Sidebar() {
     return <Container>
@@ -76,6 +76,9 @@ const LinksContainer = styled.div`
     width: 100%;
     height: 100%;
     margin-left: -.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 `;
 
 const Links = styled.div`
@@ -114,7 +117,7 @@ const ExitContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-top: 2rem;
+    margin-bottom: 2rem;
 `;
 
 const ExitLink = styled.div`
