@@ -1,0 +1,15 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Khula:wght@300;400;600;700&display=swap');
+
+body {
+  margin: 0.7rem;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Khula', sans-serif;
+  background-color: #262B4E;
+}
+
+h1, h2, h3, h4, h5, h6, a, ul, li {
+  margin: 0;
+  padding: 0;
+}
