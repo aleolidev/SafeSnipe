@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import styled from 'styled-components'
 import { textWhite } from '../utils';
 import Navbar from './Navbar';
@@ -6,31 +7,28 @@ import TopLaunches from './launch/TopLaunches';
 import MostTelegramUsers from './launch/MostTelegramUsers';
 import HighestMaxBuy from './launch/HighestMaxBuy';
 
+const MainContent = () => {
+    const [posts, setPosts] = useState({ launches: []})
+    
+    useEffect(() => {
+        async function fetchPostList() {
+            const { data } = await axios("http://localhost:8080/v1/launch?callType=scoring")
 
-function MainContent() {
+            setPosts({launches: data})
+        }
+        fetchPostList()
+    }, [setPosts])
+    
+
     return <Container>
         <Navbar />
         <SubContainer>
             <SectionOne>
                 <ColumnOne1>
                     <TitleText>Top Launches</TitleText>
-                    <TopLaunches />
+                    <TopLaunches data={ posts } />
                 </ColumnOne1>
             </SectionOne>
-            <SectionTwo>
-                <ColumnOne2>
-                    <Row2>
-                        <TitleText>Most Telegram Users</TitleText>
-                        <MostTelegramUsers />
-                    </Row2>
-                </ColumnOne2>
-                <ColumnTwo2>
-                    <Row2>
-                        <TitleText>Highest Max Buy</TitleText>
-                        <HighestMaxBuy />
-                    </Row2>
-                </ColumnTwo2>
-            </SectionTwo>
         </SubContainer>
     </Container>
 }
@@ -58,7 +56,7 @@ const SectionOne = styled.div`
     justify-content: space-between;
     height: 100%;
     gap: 2rem;
-    width: 55%;
+    width: 100%;
 `;
 
 const SectionTwo = styled.div`

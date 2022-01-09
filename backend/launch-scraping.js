@@ -201,10 +201,20 @@ async function getLaunchInfo(browser, launchURI) {
         if (isValid(websiteCreationDate)) { launch_info['websiteCreationDate'] = websiteCreationDate }
     }
 
+    const scoring = getScoring(launch_info)
+    launch_info['scoring'] = scoring
+
     //console.log(launch_info)
     launch.close()
 
     return launch_info
+}
+
+function getScoring(data) {
+    // let scoring = 0
+    let scoring = Math.floor(Math.random() * 101)
+
+    return scoring
 }
 
 async function getLaunchValue(page, value_string, extra_xpath) {

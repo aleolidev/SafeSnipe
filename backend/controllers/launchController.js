@@ -44,7 +44,10 @@ async function addLaunch(req, res) {
             telegramUsers,
 
             // Website
-            websiteCreationDate
+            websiteCreationDate,
+
+            // Scoring
+            scoring
         } = req.body
 
         const filter = { 
@@ -81,7 +84,8 @@ async function addLaunch(req, res) {
             'github': github,
             'unknownSites': unknownSites,
             'telegramUsers': telegramUsers,
-            'websiteCreationDate': websiteCreationDate
+            'websiteCreationDate': websiteCreationDate,
+            'scoring': scoring
         }
         
         const launchStored = await Launch.findOneAndUpdate(filter, update, { 
@@ -95,10 +99,40 @@ async function addLaunch(req, res) {
     }
 }
 
-async function getLaunch (req, res) {
-    // TODO: pagination for results
-    const launch = await Launch.find().lean().exec()
-    res.status(200).send({ launch })
+async function getLaunch (res, filters) {
+
+    let callType = "default"
+    let maxDays = 30 
+    
+    if(isValid(filters.callType)) { callType = filters.callType }
+    if(isValid(filters.interval)) { maxDays = parseInt(filters.interval) }
+
+    const minDay = new Date()
+    const maxDay = new Date()
+
+    maxDay.setDate(maxDay.getDate() +  maxDays)
+
+    let filter = { 
+        presaleStart: { $gte: minDay, $lt: maxDay } 
+    }
+
+    let sortBy = 'presaleStart'
+
+    if (callType == 'scoring') {
+        sortBy = '-scoring'
+    } else if (callType == 'telegram') {
+        sortBy = '-telegramUsers'
+    } else if (callType == 'maxbuy') {
+        sortBy = '-maxBuy'
+    }
+
+    const launch = await Launch.find(filter).sort(sortBy).limit(100).lean().exec()
+    // const launch = await Launch.find(filter).lean().exec()
+    res.status(200).send( launch )
+}
+
+function isValid(value) {
+    return value != undefined && value != null && value != ''
 }
 
 module.exports = { addLaunch, getLaunch }

@@ -44,7 +44,10 @@ const LaunchSchema = Schema({
     telegramUsers: Number,
 
     // Website
-    websiteCreationDate: String,
+    websiteCreationDate: Date,
+
+    // Scoring
+    scoring: Number, 
 }, {
     timestamps: true
 }) 
